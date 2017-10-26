@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dom time="timeZ" day="Friday">
+    <notes>
+        <note id="1" time="timeX" day="Monday">
+            <day-per-day id="1"/>
+            <to id="1">Vadim.</to>
+            <from id="1">Dasha.</from>
+            <head id="1">Buy milk.</head>
+            <body id="1">Can you please buy milk after work.</body>
+        </note>
+        <note id="2">
+            <day id="2"/>
+            <to id="2" time="timeY" day="Tuesday">Nick.</to>
+            <from id="2">Masha.</from>
+            <head id="2">
+                Sell bicycle.
+                <hint>Hint body.</hint>
+            </head>
+            <body id="2">Please sell bicycle on the weekend.</body>
+        </note>
+    </notes>
+    <breakfast-menu>
+        <food id="1" d-d="22" tt="1">
+            <name>Belgian Waffles</name>
+            <price>$5.95</price>
+        </food>
+        <food id="2">
+            <name>Strawberry Belgian Waffles</name>
+            <price>$7.95</price>
+        </food>
+    </breakfast-menu>
+</dom>
