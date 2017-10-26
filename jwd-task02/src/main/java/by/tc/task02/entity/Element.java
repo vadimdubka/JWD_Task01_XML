@@ -55,7 +55,8 @@ public class Element {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Element)) return false;
+        if (null==o) return false;
+        if (getClass()!=o.getClass()) return false;
         
         Element element = (Element) o;
         
