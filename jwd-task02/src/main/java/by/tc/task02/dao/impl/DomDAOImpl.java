@@ -113,8 +113,8 @@ public class DomDAOImpl implements DomDAO {
     
     private void openTagHandler(String tag) {
         emptyTagMatcher.reset(tag);
-        
         ++level;
+        
         Element element = new Element();
         element.setLevel(level);
         elementNameAnalyzer(element, tag);
@@ -147,7 +147,7 @@ public class DomDAOImpl implements DomDAO {
         closedElements.addLast(currentElem);
     }
     
-    
+    //TODO дать имена методам
     private void removeClosedElemsIntoCurrentElem(Element currentElem) {
         List<Element> childrenElements = new ArrayList<>();
         int currentLevel = currentElem.getLevel();
@@ -204,7 +204,4 @@ public class DomDAOImpl implements DomDAO {
             element.setData(tagData);
         }
     }
-    
-    //TODO Сделать древовидную структуру
-    //TODO сделать, чтобы удаляло строки из пробелов
 }

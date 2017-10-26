@@ -41,8 +41,7 @@ public class Element {
     
     public void setData(String data) {
         String data2 = data.trim();
-        
-        this.data = this.data.append(data2);
+        this.data.append(data2);
     }
     
     public List<Element> getChildrenElements() {
@@ -52,9 +51,6 @@ public class Element {
     public void setChildrenElements(List<Element> childrenElements) {
         this.childrenElements = childrenElements;
     }
-    
-    //TODO порядок размещения полей и методов в классе
-    
     
     @Override
     public boolean equals(Object o) {
@@ -68,10 +64,9 @@ public class Element {
         if (attributes != null ? !attributes.equals(element.attributes) : element.attributes != null) return false;
         if (!data.equals(element.data)) return false;
         return childrenElements != null ? childrenElements.equals(element.childrenElements) : element.childrenElements == null;
-    
+        
     }
     
-    //TODO можно ли считать hashcode от коллекции и надо ли это делать
     @Override
     public int hashCode() {
         int result = level;
@@ -90,7 +85,7 @@ public class Element {
         for (int i = 0; i < tabsCounter; i++) {
             tabs.append(indent);
         }
-
+        
         String childrenPrint = childrenListPrint();
         return String.format("%s[%d] %s %s: %s%n%s", tabs, level, name, attributes, data, childrenPrint);
         
