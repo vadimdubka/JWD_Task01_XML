@@ -11,13 +11,13 @@ import java.util.regex.Pattern;
 
 public class DomDAOImpl implements DomDAO {
     
-    private static final String TAG = "(</?)([^\\s<>]+)([^<>]*)(/?>)";
-    private static final String OPEN_TAG = "<\\w[^<>]*[^/]>";
-    private static final String CLOSE_TAG = "</\\w[^<>]*>";
+    private static final String TAG = "(</?)([^\\s<>?]+)([^<>]*)(/?>)";
+    private static final String EMPTY_TAG = "<\\w[^<>]*/>";
+    private static final String CLOSE_TAG = "</(\\w[^<>]*)>";
     private static final String NAME = "(</?)([^\\s/]+)(\\s*[^<>]*)>";
     private static final String ATTRIBUTE = "(\\s*)([^\\s]+)=\"([^\\s]+)\"";
     private static final Pattern TAG_PATTERN = Pattern.compile(TAG);
-    private static final Pattern OPEN_TAG_PATTERN = Pattern.compile(OPEN_TAG);
+    private static final Pattern EMPTY_TAG_PATTERN = Pattern.compile(EMPTY_TAG);
     private static final Pattern CLOSE_TAG_PATTERN = Pattern.compile(CLOSE_TAG);
     private static final Pattern NAME_PATTERN = Pattern.compile(NAME);
     private static final Pattern ATTRIBUTE_PATTERN = Pattern.compile(ATTRIBUTE);
@@ -26,7 +26,7 @@ public class DomDAOImpl implements DomDAO {
     private final Deque<Element> closedElements = new ArrayDeque<>();
     
     private final Matcher closeTagMatcher = CLOSE_TAG_PATTERN.matcher("");
-    private final Matcher openTagMatcher = OPEN_TAG_PATTERN.matcher("");
+    private final Matcher emptyTagMatcher = EMPTY_TAG_PATTERN.matcher("");
     private final Matcher nameMatcher = NAME_PATTERN.matcher("");
     
     private String document;
@@ -93,62 +93,60 @@ public class DomDAOImpl implements DomDAO {
             endOfPreviousTag = tagMatcher.end();
             
             String tag = tagMatcher.group();
-            tagAnalyzer(tag);
+            tagHandlersDirector(tag);
         }
     }
     
-    /**
-     * Метод анализирует данные между тегами и добавляет эти данные в последний открытый элемент.
-     */
-    private void tagDataAnalyzer(int endOfPreviousTag, int startOfCurrentTag) {
-        String tagData = document.substring(endOfPreviousTag, startOfCurrentTag);
-        
-        Element element = openedElements.peekLast();
-        if (element != null) {
-            element.setData(tagData);
-        }
-    }
     
     /**
      * Анализирует тег и проводит его обработку в зависимости от типа тега.
      */
-    private void tagAnalyzer(String tag) {
+    private void tagHandlersDirector(String tag) {
         closeTagMatcher.reset(tag);
-        openTagMatcher.reset(tag);
         
-        if (closeTagMatcher.matches()) {//TODO разбить на 2 метода
-            --level;
-            
-            Element currentElem = openedElements.pollLast();
-            
-            if (!closedElements.isEmpty()) {
-                Element previousElem = closedElements.peekLast();
-                
-                int currentElemLevel = currentElem.getLevel();
-                int previousElemLevel = previousElem.getLevel();
-                
-                if (currentElemLevel < previousElemLevel) {
-                    removeClosedElemsIntoCurrentElem(currentElem);
-                }
-            }
-            
-            closedElements.addLast(currentElem);
-            
+        if (closeTagMatcher.matches()) {
+            closeTagHandler(tag);
         } else {
-            ++level;
-            Element element = new Element();
-            element.setLevel(level);
-            elementNameAnalyzer(element, tag);
-            elementAttributesAnalyzer(element, tag);
-            
-            if (openTagMatcher.matches()) {
-                openedElements.addLast(element);
-            } else {
-                closedElements.addLast(element);
-                --level;
-            }
+            openTagHandler(tag);
         }
     }
+    
+    private void openTagHandler(String tag) {
+        emptyTagMatcher.reset(tag);
+        
+        ++level;
+        Element element = new Element();
+        element.setLevel(level);
+        elementNameAnalyzer(element, tag);
+        elementAttributesAnalyzer(element, tag);
+        
+        if (emptyTagMatcher.matches()) {
+            closedElements.addLast(element);
+            --level;
+        } else {
+            openedElements.addLast(element);
+        }
+    }
+    
+    private void closeTagHandler(String tag) {
+        --level;
+        
+        Element currentElem = openedElements.pollLast();
+        
+        if (!closedElements.isEmpty()) {
+            Element previousElem = closedElements.peekLast();
+            
+            int currentElemLevel = currentElem.getLevel();
+            int previousElemLevel = previousElem.getLevel();
+            
+            if (currentElemLevel < previousElemLevel) {
+                removeClosedElemsIntoCurrentElem(currentElem);
+            }
+        }
+        
+        closedElements.addLast(currentElem);
+    }
+    
     
     private void removeClosedElemsIntoCurrentElem(Element currentElem) {
         List<Element> childrenElements = new ArrayList<>();
@@ -193,6 +191,18 @@ public class DomDAOImpl implements DomDAO {
         
         element.setAttributes(attributes);
         
+    }
+    
+    /**
+     * Метод анализирует данные между тегами и добавляет эти данные в последний открытый элемент.
+     */
+    private void tagDataAnalyzer(int endOfPreviousTag, int startOfCurrentTag) {
+        String tagData = document.substring(endOfPreviousTag, startOfCurrentTag);
+        
+        Element element = openedElements.peekLast();
+        if (element != null) {
+            element.setData(tagData);
+        }
     }
     
     //TODO Сделать древовидную структуру

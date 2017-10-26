@@ -11,10 +11,11 @@ public class Main {
         ServiceFactory factory = ServiceFactory.getInstance();
         DomService service = factory.getDomService();
         
-        String documentAddress = "/myFile.xml";
+        String documentAddress = "/document.xml";
         Element dom = service.getDOM(documentAddress);
         
         PrintDOM.print(dom);
     }
     
+    //TODO сделать обработку ошибок
 }
