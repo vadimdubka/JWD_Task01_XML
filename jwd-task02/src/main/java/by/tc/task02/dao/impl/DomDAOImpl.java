@@ -1,6 +1,7 @@
 package by.tc.task02.dao.impl;
 
 import by.tc.task02.dao.DomDAO;
+import by.tc.task02.dao.exceptions.DAOException;
 import by.tc.task02.entity.Element;
 
 import java.io.*;
@@ -33,9 +34,8 @@ public class DomDAOImpl implements DomDAO {
     private int level = 0;
     
     @Override
-    public Element getDOM(String documentAddress) {
+    public Element getDOM(String documentAddress) throws DAOException {
         document = readDocument(documentAddress);
-        
         parseXML();
         
         Element dom = closedElements.pollLast();
@@ -45,14 +45,16 @@ public class DomDAOImpl implements DomDAO {
     
     
     /**
-     * Method reads xml document into memory.
+     * Method reads xml document.
      */
-    private String readDocument(String fileAddress) {
+    private String readDocument(String fileAddress) throws DAOException {
         URL resourceURL = DomDAOImpl.class.getResource(fileAddress);
-        BufferedReader reader = null;
+        if (resourceURL == null) {
+            throw new DAOException("Document is not available");
+        }
         
         StringBuilder wholeFile = new StringBuilder();
-        
+        BufferedReader reader = null;
         try {
             reader = new BufferedReader(new InputStreamReader(resourceURL.openStream()));
             
@@ -61,9 +63,9 @@ public class DomDAOImpl implements DomDAO {
                 wholeFile.append(line);
             }
         } catch (FileNotFoundException e) {
-            System.err.println("Database is not available.");
+            throw new DAOException("Document is not available.", e);
         } catch (IOException e) {
-            System.err.println(" I/O exception of some sort has occurred.");
+            throw new DAOException("I/O exception of some sort has occurred.", e);
         } finally {
             try {
                 if (reader != null) {
@@ -77,7 +79,7 @@ public class DomDAOImpl implements DomDAO {
     }
     
     /**
-     * Метод находит в документе теги и отправляет данные о тегах на обработку.
+     * Method finds tags and sent them to the handling.
      */
     private void parseXML() {
         Matcher tagMatcher = TAG_PATTERN.matcher(document);
@@ -85,21 +87,20 @@ public class DomDAOImpl implements DomDAO {
         int endOfPreviousTag = 0;
         while (tagMatcher.find(endOfPreviousTag)) {
             int startOfCurrentTag = tagMatcher.start();
-            
             if (endOfPreviousTag < startOfCurrentTag) {
                 tagDataAnalyzer(endOfPreviousTag, startOfCurrentTag);
             }
             
-            endOfPreviousTag = tagMatcher.end();
-            
             String tag = tagMatcher.group();
             tagHandlersDirector(tag);
+            
+            endOfPreviousTag = tagMatcher.end();
         }
     }
     
     
     /**
-     * Анализирует тег и проводит его обработку в зависимости от типа тега.
+     * Define tag handler according to the tag type.
      */
     private void tagHandlersDirector(String tag) {
         closeTagMatcher.reset(tag);
@@ -111,6 +112,9 @@ public class DomDAOImpl implements DomDAO {
         }
     }
     
+    /**
+     * Handles opened tags.
+     */
     private void openTagHandler(String tag) {
         emptyTagMatcher.reset(tag);
         ++level;
@@ -128,6 +132,9 @@ public class DomDAOImpl implements DomDAO {
         }
     }
     
+    /**
+     * Handles closed tags.
+     */
     private void closeTagHandler(String tag) {
         --level;
         
@@ -140,15 +147,17 @@ public class DomDAOImpl implements DomDAO {
             int previousElemLevel = previousElem.getLevel();
             
             if (currentElemLevel < previousElemLevel) {
-                removeClosedElemsIntoCurrentElem(currentElem);
+                removeInnerElemsIntoCurrentElem(currentElem);
             }
         }
         
         closedElements.addLast(currentElem);
     }
     
-    //TODO дать имена методам
-    private void removeClosedElemsIntoCurrentElem(Element currentElem) {
+    /**
+     * Removes inner elements into current element.
+     */
+    private void removeInnerElemsIntoCurrentElem(Element currentElem) {
         List<Element> childrenElements = new ArrayList<>();
         int currentLevel = currentElem.getLevel();
         
@@ -166,7 +175,7 @@ public class DomDAOImpl implements DomDAO {
     }
     
     /**
-     * Анализирует имя элемента из описания тега
+     * Retrieves tag name and set it to the element.
      */
     private void elementNameAnalyzer(Element element, String tag) {
         nameMatcher.reset(tag);
@@ -177,7 +186,7 @@ public class DomDAOImpl implements DomDAO {
     }
     
     /**
-     * Анализирует атрибуты элемента из описания тега
+     * Retrieves tag attributes and set it to the element.
      */
     private void elementAttributesAnalyzer(Element element, String tag) {
         Matcher attributeMatcher = ATTRIBUTE_PATTERN.matcher(tag);

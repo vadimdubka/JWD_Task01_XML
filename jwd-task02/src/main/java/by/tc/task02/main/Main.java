@@ -3,6 +3,7 @@ package by.tc.task02.main;
 import by.tc.task02.entity.Element;
 import by.tc.task02.service.DomService;
 import by.tc.task02.service.ServiceFactory;
+import by.tc.task02.service.exceptions.ServiceException;
 
 public class Main {
     
@@ -12,11 +13,13 @@ public class Main {
         DomService service = factory.getDomService();
         
         String documentAddress = "/document.xml";
-        Element dom = service.getDOM(documentAddress);
         
+        Element dom = null;
+        try {
+            dom = service.getDOM(documentAddress);
+        } catch (ServiceException e) {
+            System.err.println(e.getCause().getMessage());
+        }
         PrintDOM.print(dom);
     }
-    
-    //TODO сделать обработку ошибок
-    //TODO может все таки сделать отдельный метод для пичати entity
 }

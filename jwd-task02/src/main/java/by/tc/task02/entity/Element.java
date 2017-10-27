@@ -88,7 +88,7 @@ public class Element {
         }
         
         String childrenPrint = childrenListPrint();
-        return String.format("%s[%d] %s %s: %s%n%s", tabs, level, name, attributes, data, childrenPrint);
+        return String.format("%s[%d] <%s> %s: %s%n%s", tabs, level, name, attributes, data, childrenPrint);
         
     }
     
