@@ -29,5 +29,5 @@
             <price>$7.95</price>
         </food>
     </breakfast-menu>
-    <html><head><title>My home page</title></head><body><h1>My home page</h1><p>Hello, this is my home page.</p><p>I also wrote a book! Read it.<p> My book.</p>.</p><br/></body></html>
+    <html><head><title>My home page.</title></head><body><h1>My home page.</h1><p>Hello, this is my home page.</p><p>I also wrote a book!<p> My book.</p></p><br/></body></html>
 </dom>

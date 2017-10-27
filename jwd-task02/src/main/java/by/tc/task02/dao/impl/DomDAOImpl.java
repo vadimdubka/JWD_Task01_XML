@@ -88,7 +88,7 @@ public class DomDAOImpl implements DomDAO {
         while (tagMatcher.find(endOfPreviousTag)) {
             int startOfCurrentTag = tagMatcher.start();
             if (endOfPreviousTag < startOfCurrentTag) {
-                tagDataAnalyzer(endOfPreviousTag, startOfCurrentTag);
+                dataAnalyzer(endOfPreviousTag, startOfCurrentTag);
             }
             
             String tag = tagMatcher.group();
@@ -205,7 +205,7 @@ public class DomDAOImpl implements DomDAO {
     /**
      * Метод анализирует данные между тегами и добавляет эти данные в последний открытый элемент.
      */
-    private void tagDataAnalyzer(int endOfPreviousTag, int startOfCurrentTag) {
+    private void dataAnalyzer(int endOfPreviousTag, int startOfCurrentTag) {
         String tagData = document.substring(endOfPreviousTag, startOfCurrentTag);
         
         Element element = openedElements.peekLast();

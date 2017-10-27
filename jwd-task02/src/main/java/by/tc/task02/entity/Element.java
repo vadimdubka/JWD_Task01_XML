@@ -55,8 +55,8 @@ public class Element {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (null==o) return false;
-        if (getClass()!=o.getClass()) return false;
+        if (null == o) return false;
+        if (getClass() != o.getClass()) return false;
         
         Element element = (Element) o;
         
@@ -87,17 +87,14 @@ public class Element {
             tabs.append(indent);
         }
         
-        String childrenPrint = childrenListPrint();
-        return String.format("%s[%d] <%s> %s: %s%n%s", tabs, level, name, attributes, data, childrenPrint);
-        
+        String attrPrint = attributesPrint();
+        return String.format("%s[%d] <%s> %s %s", tabs, level, name, attrPrint, data);
     }
     
-    private String childrenListPrint() {
-        StringBuilder children = new StringBuilder();
-        if (childrenElements != null) {
-            childrenElements.forEach(children::append);
-        }
-        
-        return children.toString();
+    private String attributesPrint() {
+        if (attributes.isEmpty()) {
+            return "";
+        } else return attributes.toString();
     }
+    
 }

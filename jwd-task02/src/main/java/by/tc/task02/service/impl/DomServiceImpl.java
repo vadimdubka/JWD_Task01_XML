@@ -18,11 +18,9 @@ public class DomServiceImpl implements DomService {
         try {
             dom = domDAO.getDOM(documentAddress);
         } catch (DAOException e) {
-            throw new ServiceException("Exception on DAO layer.", e);
+            throw new ServiceException("Exception in DAO layer.", e);
         }
         
         return dom;
     }
-    
-    
 }
